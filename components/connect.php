@@ -1,20 +1,37 @@
 <?php
+/**
+ * Smart E-Learning Web Platform - Global Bootstrap & Connection Manager
+ */
 
-   $db_name = 'mysql:host=localhost;dbname=course_db';
-   $user_name = 'root';
-   $user_password = '';
+// Load absolute paths to secure config, security middleware, and multilingual matrix
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../middleware/security.php';
+require_once __DIR__ . '/../middleware/lang.php';
 
-   $conn = new PDO($db_name, $user_name, $user_password);
+// Unify Student authentication state check
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+} elseif (isset($_COOKIE['user_id'])) {
+    // Session restoration for back-compatibility
+    $user_id = sanitize_input($_COOKIE['user_id']);
+    $_SESSION['user_id'] = $user_id;
+} else {
+    $user_id = '';
+}
 
-   function unique_id() {
-      $str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-      $rand = array();
-      $length = strlen($str) - 1;
-      for ($i = 0; $i < 20; $i++) {
-          $n = mt_rand(0, $length);
-          $rand[] = $str[$n];
-      }
-      return implode($rand);
-   }
+// Unify Tutor authentication state check
+if (isset($_SESSION['tutor_id'])) {
+    $tutor_id = $_SESSION['tutor_id'];
+} elseif (isset($_COOKIE['tutor_id'])) {
+    $tutor_id = sanitize_input($_COOKIE['tutor_id']);
+    $_SESSION['tutor_id'] = $tutor_id;
+} else {
+    $tutor_id = '';
+}
 
+// Automatic CSRF token processing on standard POST forms
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($bypass_csrf)) {
+    // If not specifically bypassed, check CSRF token
+    security_csrf_check();
+}
 ?>
