@@ -1592,4 +1592,77 @@ section{
       height: auto;
    }
 
+   /* Quiz/Exam responsive */
+   .quiz-grid { grid-template-columns: 1fr; }
+   .quiz-topbar { top: 6rem; }
+   .history-table th, .history-table td { padding: .8rem 1rem; font-size: 1.3rem; }
+   .ranking-table th, .ranking-table td { padding:.8rem 1rem; font-size: 1.3rem; }
+
 }
+
+/* =====================================================
+   PART 7 – Quiz & Exam System
+   ===================================================== */
+
+/* Input field helper for forms */
+.input-field {
+   margin-bottom: 1.5rem;
+}
+.input-field label {
+   display: block;
+   font-size: 1.6rem;
+   color: var(--black);
+   margin-bottom: .6rem;
+   font-weight: 600;
+}
+.input-field .box {
+   width: 100%;
+   padding: 1.2rem 1.5rem;
+   border: 2px solid var(--light-bg);
+   border-radius: .5rem;
+   font-size: 1.6rem;
+   color: var(--black);
+   background: var(--white);
+   font-family: 'Nunito', sans-serif;
+   transition: border-color .2s;
+}
+.input-field .box:focus { border-color: var(--main-color); }
+
+/* Quiz section base */
+.quizzes, .quiz-result, .exam-history, .cert-page {
+   padding: 2rem;
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+/* Shared quiz card animation */
+.quiz-card {
+   transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* Exam history table responsiveness */
+.exam-history { overflow-x: auto; }
+
+/* =====================================================
+   PART 8 – Certificate System
+   ===================================================== */
+
+/* Certificate preview box */
+.certificate-preview {
+   width: 100%;
+   max-width: 900px;
+   margin: 0 auto;
+}
+
+/* Verify page */
+.verify-page {
+   max-width: 750px;
+   margin: 0 auto;
+   padding: 2rem;
+}
+
+/* Certificate button hover states */
+.btn-download:hover,
+.btn-verify:hover {
+   color: var(--white);
+}
