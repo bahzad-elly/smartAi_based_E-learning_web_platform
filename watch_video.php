@@ -132,7 +132,10 @@ if(isset($_POST['update_now'])){
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>watch video</title>
+   <title>Watch Video | Smart AI E-Learning</title>
+   <meta name="description" content="Watch video lessons and interact with the community.">
+   <!-- CSRF token for AJAX requests -->
+   <meta name="csrf_token" content="<?= csrf_token_generate() ?>">
 
    <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
@@ -208,21 +211,16 @@ if(isset($_POST['update_now'])){
             <span><?= $fetch_tutor['profession']; ?></span>
          </div>
       </div>
-      <form action="" method="post" class="flex">
-         <input type="hidden" name="content_id" value="<?= $content_id; ?>">
-         <a href="playlist.php?get_id=<?= $fetch_content['playlist_id']; ?>" class="inline-btn">view playlist</a>
-         <?php
-            if($verify_likes->rowCount() > 0){
-         ?>
-         <button type="submit" name="like_content"><i class="fas fa-heart"></i><span>liked</span></button>
-         <?php
-         }else{
-         ?>
-         <button type="submit" name="like_content"><i class="far fa-heart"></i><span>like</span></button>
-         <?php
-            }
-         ?>
-      </form>
+      <!-- AJAX Like + View Playlist -->
+      <div class="flex">
+         <a href="playlist.php?get_id=<?= $fetch_content['playlist_id']; ?>" class="inline-btn"><i class="fas fa-list"></i> View Playlist</a>
+         <button id="ajax-like-btn"
+                 data-content-id="<?= $content_id; ?>"
+                 class="<?= ($verify_likes->rowCount() > 0) ? 'liked' : '' ?>">
+            <i class="<?= ($verify_likes->rowCount() > 0) ? 'fas' : 'far' ?> fa-heart"></i>
+            <span id="like-count"><?= $total_likes; ?> likes</span>
+         </button>
+      </div>
       <div class="description"><p><?= $fetch_content['description']; ?></p></div>
    </div>
    <?php
@@ -238,22 +236,29 @@ if(isset($_POST['update_now'])){
 
 <!-- comments section starts  -->
 
+<!-- AJAX Comments Section -->
 <section class="comments">
 
-   <h1 class="heading">add a comment</h1>
+   <h1 class="heading"><i class="fas fa-comments" style="color:var(--main-color);"></i> Add a Comment</h1>
 
-   <form action="" method="post" class="add-comment">
-      <input type="hidden" name="content_id" value="<?= $get_id; ?>">
-      <textarea name="comment_box" required placeholder="write your comment..." maxlength="1000" cols="30" rows="10"></textarea>
-      <input type="submit" value="add comment" name="add_comment" class="inline-btn">
+   <?php if($user_id): ?>
+   <form id="ajax-comment-form" class="add-comment" data-content-id="<?= $get_id; ?>">
+      <textarea id="comment-box" required placeholder="Write your comment..." maxlength="1000" cols="30" rows="5"></textarea>
+      <button type="submit" class="inline-btn" style="margin-top:1rem;">
+         <i class="fas fa-paper-plane"></i> Add Comment
+      </button>
    </form>
+   <?php else: ?>
+   <p style="font-size:1.7rem; color:var(--light-color); padding:1.5rem; background:var(--white); border-radius:.5rem; margin-bottom:2rem;">
+      <i class="fas fa-lock"></i> <a href="login.php" style="color:var(--main-color);">Login</a> to post a comment.
+   </p>
+   <?php endif; ?>
 
-   <h1 class="heading">user comments</h1>
+   <h1 class="heading" style="margin-top:3rem;"><i class="fas fa-comment-dots" style="color:var(--main-color);"></i> User Comments</h1>
 
-   
-   <div class="show-comments">
+   <div class="show-comments" id="comments-list">
       <?php
-         $select_comments = $conn->prepare("SELECT * FROM `comments` WHERE content_id = ?");
+         $select_comments = $conn->prepare("SELECT * FROM `comments` WHERE content_id = ? ORDER BY date DESC");
          $select_comments->execute([$get_id]);
          if($select_comments->rowCount() > 0){
             while($fetch_comment = $select_comments->fetch(PDO::FETCH_ASSOC)){   
@@ -261,35 +266,30 @@ if(isset($_POST['update_now'])){
                $select_commentor->execute([$fetch_comment['user_id']]);
                $fetch_commentor = $select_commentor->fetch(PDO::FETCH_ASSOC);
       ?>
-      <div class="box" style="<?php if($fetch_comment['user_id'] == $user_id){echo 'order:-1;';} ?>">
+      <div class="box" data-comment-id="<?= $fetch_comment['id']; ?>" style="margin-bottom:1.5rem;">
          <div class="user">
-            <img src="uploaded_files/<?= $fetch_commentor['image']; ?>" alt="">
+            <img src="uploaded_files/<?= $fetch_commentor['image'] ?? 'default.png'; ?>" alt="" onerror="this.src='images/default.png'">
             <div>
-               <h3><?= $fetch_commentor['name']; ?></h3>
+               <h3><?= htmlspecialchars($fetch_commentor['name'] ?? ''); ?></h3>
                <span><?= $fetch_comment['date']; ?></span>
             </div>
          </div>
-         <p class="text"><?= $fetch_comment['comment']; ?></p>
-         <?php
-            if($fetch_comment['user_id'] == $user_id){ 
-         ?>
-         <form action="" method="post" class="flex-btn">
-            <input type="hidden" name="comment_id" value="<?= $fetch_comment['id']; ?>">
-            <button type="submit" name="edit_comment" class="inline-option-btn">edit comment</button>
-            <button type="submit" name="delete_comment" class="inline-delete-btn" onclick="return confirm('delete this comment?');">delete comment</button>
-         </form>
-         <?php
-         }
-         ?>
+         <p class="text"><?= htmlspecialchars($fetch_comment['comment']); ?></p>
+         <?php if($fetch_comment['user_id'] == $user_id): ?>
+         <div class="flex-btn" style="margin-top:1rem;">
+            <button class="inline-option-btn ajax-edit-comment"><i class="fas fa-edit"></i> Edit</button>
+            <button class="inline-delete-btn ajax-delete-comment"><i class="fas fa-trash"></i> Delete</button>
+         </div>
+         <?php endif; ?>
       </div>
       <?php
-       }
+         }
       }else{
-         echo '<p class="empty">no comments added yet!</p>';
+         echo '<p class="empty">No comments yet. Be the first to comment!</p>';
       }
       ?>
-      </div>
-   
+   </div>
+
 </section>
 
 <!-- comments section ends -->
@@ -305,6 +305,7 @@ if(isset($_POST['update_now'])){
 
 <!-- custom js file link  -->
 <script src="js/script.js"></script>
-   
+<script src="js/ajax.js"></script>
+
 </body>
 </html>

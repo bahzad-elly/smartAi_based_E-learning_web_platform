@@ -1665,4 +1665,371 @@ section{
 .btn-download:hover,
 .btn-verify:hover {
    color: var(--white);
-}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PART 9 – AJAX UI COMPONENTS
+═══════════════════════════════════════════════════════════ */
+
+/* ── Toast Notifications ───────────────────────────────── */
+#toast-container {
+   position: fixed;
+   bottom: 2.5rem;
+   right: 2.5rem;
+   z-index: 99999;
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+   pointer-events: none;
+}
+
+.toast {
+   display: flex;
+   align-items: center;
+   gap: 1.2rem;
+   padding: 1.4rem 2rem;
+   border-radius: 1rem;
+   font-size: 1.6rem;
+   font-weight: 600;
+   color: #fff;
+   min-width: 28rem;
+   max-width: 40rem;
+   box-shadow: 0 .8rem 2.5rem rgba(0,0,0,.22);
+   opacity: 0;
+   transform: translateX(120%);
+   transition: opacity .3s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+   pointer-events: all;
+}
+
+.toast.show {
+   opacity: 1;
+   transform: translateX(0);
+}
+
+.toast-success { background: linear-gradient(135deg, #27ae60, #1e8449); }
+.toast-error   { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.toast-info    { background: linear-gradient(135deg, #2980b9, #1a5276); }
+.toast-warning { background: linear-gradient(135deg, #f39c12, #d68910); }
+
+.toast i { font-size: 2rem; flex-shrink: 0; }
+.toast span { flex: 1; line-height: 1.4; }
+.toast-close {
+   background: none;
+   border: none;
+   color: rgba(255,255,255,.7);
+   cursor: pointer;
+   font-size: 1.4rem;
+   padding: 0;
+   flex-shrink: 0;
+   transition: color .2s;
+}
+.toast-close:hover { color: #fff; }
+
+/* ── Global Spinner Overlay ─────────────────────────────── */
+#global-spinner {
+   position: fixed;
+   inset: 0;
+   background: rgba(0,0,0,.35);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 99998;
+   opacity: 0;
+   pointer-events: none;
+   transition: opacity .25s;
+}
+
+#global-spinner.active {
+   opacity: 1;
+   pointer-events: all;
+}
+
+.spinner-ring {
+   width: 5.5rem;
+   height: 5.5rem;
+   border: .5rem solid rgba(255,255,255,.25);
+   border-top-color: var(--main-color);
+   border-radius: 50%;
+   animation: spin .75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Live Search Dropdown ───────────────────────────────── */
+.live-search-wrapper {
+   position: relative;
+   width: 50rem;
+}
+
+#live-search-dropdown {
+   position: absolute;
+   top: calc(100% + .5rem);
+   left: 0;
+   right: 0;
+   background: var(--white);
+   border-radius: 1rem;
+   box-shadow: 0 1rem 3rem rgba(0,0,0,.18);
+   border: var(--border);
+   max-height: 40rem;
+   overflow-y: auto;
+   z-index: 5000;
+   display: none;
+}
+
+#live-search-dropdown.active { display: block; }
+
+.ls-item {
+   display: flex;
+   align-items: center;
+   gap: 1.5rem;
+   padding: 1.2rem 1.8rem;
+   transition: background .15s;
+   cursor: pointer;
+}
+
+.ls-item:hover { background: var(--light-bg); }
+
+.ls-item img {
+   width: 5rem;
+   height: 5rem;
+   border-radius: .5rem;
+   object-fit: cover;
+   flex-shrink: 0;
+}
+
+.ls-item-info { flex: 1; overflow: hidden; }
+
+.ls-item-title {
+   display: block;
+   font-size: 1.6rem;
+   color: var(--black);
+   font-weight: 600;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.ls-item-meta {
+   display: block;
+   font-size: 1.3rem;
+   color: var(--light-color);
+   margin-top: .2rem;
+}
+
+.ls-empty {
+   padding: 2rem;
+   text-align: center;
+   font-size: 1.6rem;
+   color: var(--light-color);
+}
+
+.ls-view-all {
+   display: block;
+   padding: 1.2rem 1.8rem;
+   font-size: 1.5rem;
+   color: var(--main-color);
+   border-top: var(--border);
+   text-align: center;
+   font-weight: 600;
+   transition: background .15s;
+}
+
+.ls-view-all:hover { background: var(--light-bg); }
+
+/* ── AJAX Like Button ───────────────────────────────────── */
+#ajax-like-btn {
+   display: inline-flex;
+   align-items: center;
+   gap: .8rem;
+   padding: 1rem 2.5rem;
+   font-size: 1.8rem;
+   border: none;
+   border-radius: .8rem;
+   cursor: pointer;
+   background: var(--light-bg);
+   color: var(--black);
+   transition: all .2s;
+   position: relative;
+   overflow: hidden;
+}
+
+#ajax-like-btn:hover { background: var(--black); color: var(--white); }
+#ajax-like-btn.liked { background: var(--red); color: #fff; }
+#ajax-like-btn.liked:hover { background: #c0392b; }
+
+#ajax-like-btn.loading { opacity: .6; pointer-events: none; }
+
+@keyframes likeBurst {
+   0%   { transform: scale(1); }
+   40%  { transform: scale(1.5); }
+   70%  { transform: scale(.85); }
+   100% { transform: scale(1); }
+}
+#ajax-like-btn.like-burst i { animation: likeBurst .55s ease; }
+
+/* ── AJAX Bookmark Button ───────────────────────────────── */
+.ajax-bookmark-btn {
+   display: inline-flex;
+   align-items: center;
+   gap: .8rem;
+   padding: 1rem 2rem;
+   font-size: 1.7rem;
+   border: none;
+   border-radius: .8rem;
+   cursor: pointer;
+   background: var(--light-bg);
+   color: var(--black);
+   transition: all .2s;
+}
+.ajax-bookmark-btn:hover { background: var(--oragen); color: #fff; }
+.ajax-bookmark-btn.bookmarked { background: var(--oragen); color: #fff; }
+
+/* ── Load More Button ───────────────────────────────────── */
+#load-more-btn {
+   display: inline-flex;
+   align-items: center;
+   gap: 1rem;
+   padding: 1.5rem 4rem;
+   font-size: 1.8rem;
+   font-weight: 700;
+   background: linear-gradient(135deg, var(--main-color), #6c2d9a);
+   color: #fff;
+   border: none;
+   border-radius: 1rem;
+   cursor: pointer;
+   transition: all .25s;
+   margin: 3rem auto;
+}
+#load-more-btn:hover { transform: translateY(-3px); box-shadow: 0 .8rem 2rem rgba(142,68,173,.4); }
+#load-more-btn:disabled { opacity: .65; cursor: default; transform: none; }
+
+.load-more-wrapper {
+   text-align: center;
+   width: 100%;
+}
+
+/* ── Skeleton Loading Cards ─────────────────────────────── */
+.skeleton {
+   background: linear-gradient(90deg, var(--light-bg) 25%, #e0e0e0 50%, var(--light-bg) 75%);
+   background-size: 200% 100%;
+   animation: shimmer 1.4s infinite;
+   border-radius: .5rem;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.skeleton-thumb  { height: 20rem; width: 100%; margin-bottom: 1rem; }
+.skeleton-text   { height: 1.6rem; width: 80%; margin-bottom: .8rem; }
+.skeleton-text.short { width: 50%; }
+
+/* ── Live Form Validation ───────────────────────────────── */
+input.field-valid, textarea.field-valid {
+   border: 2px solid #27ae60 !important;
+}
+input.field-invalid, textarea.field-invalid {
+   border: 2px solid var(--red) !important;
+}
+
+.field-hint {
+   font-size: 1.3rem;
+   color: var(--red);
+   margin-top: .4rem;
+   display: block;
+}
+
+/* ── AJAX Comment New / Edit Styles ─────────────────────── */
+.comment-new {
+   animation: slideInComment .4s ease;
+}
+@keyframes slideInComment {
+   from { opacity: 0; transform: translateY(-12px); }
+   to   { opacity: 1; transform: translateY(0); }
+}
+
+.edit-mode {
+   margin-top: 1rem;
+}
+.edit-textarea {
+   width: 100%;
+   padding: 1.2rem;
+   font-size: 1.6rem;
+   border: 2px solid var(--main-color);
+   border-radius: .5rem;
+   resize: vertical;
+   min-height: 8rem;
+   color: var(--black);
+   background: var(--white);
+   font-family: 'Nunito', sans-serif;
+}
+.edit-actions {
+   display: flex;
+   gap: 1rem;
+   margin-top: .8rem;
+}
+
+/* ── AJAX Verify Certificate Result Animation ────────────── */
+.animate-in {
+   animation: verifyFadeIn .45s ease;
+}
+@keyframes verifyFadeIn {
+   from { opacity: 0; transform: translateY(16px); }
+   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Confetti Canvas (Certificate page) ──────────────────── */
+#cert-confetti {
+   position: fixed;
+   top: 0; left: 0;
+   width: 100%; height: 100%;
+   pointer-events: none;
+   z-index: 9999;
+}
+
+/* ── Share Buttons ────────────────────────────────────────── */
+.share-buttons {
+   display: flex;
+   gap: 1rem;
+   flex-wrap: wrap;
+   margin-bottom: 2rem;
+}
+.share-btn {
+   display: inline-flex;
+   align-items: center;
+   gap: .8rem;
+   padding: 1rem 2rem;
+   border-radius: .8rem;
+   font-size: 1.6rem;
+   font-weight: 600;
+   cursor: pointer;
+   border: none;
+   color: #fff;
+   transition: all .2s;
+   text-decoration: none;
+}
+.share-btn:hover { opacity: .85; transform: translateY(-2px); }
+.share-linkedin  { background: #0077b5; }
+.share-twitter   { background: #1da1f2; }
+.share-whatsapp  { background: #25d366; }
+.share-copy      { background: var(--main-color); }
+
+/* ── Copy ID Button ───────────────────────────────────────── */
+.copy-id-btn {
+   background: none;
+   border: 1px dashed var(--main-color);
+   border-radius: .5rem;
+   padding: .4rem 1.2rem;
+   font-size: 1.4rem;
+   color: var(--main-color);
+   cursor: pointer;
+   margin-left: 1rem;
+   transition: all .2s;
+}
+.copy-id-btn:hover { background: var(--main-color); color: #fff; }
+
+@media (max-width: 768px) {
+   .live-search-wrapper { width: 100%; }
+   #toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
+   .toast { min-width: unset; }
+   .share-buttons { gap: .8rem; }
+   .share-btn { font-size: 1.4rem; padding: .8rem 1.5rem; }
+}
+

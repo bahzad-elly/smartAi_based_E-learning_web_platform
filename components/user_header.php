@@ -11,16 +11,25 @@ if(isset($message)){
 }
 ?>
 
+<meta name="csrf_token" content="<?= csrf_token_generate() ?>">
+
 <header class="header">
 
    <section class="flex">
 
       <a href="home.php" class="logo">Educa.</a>
 
-      <form action="search_course.php" method="post" class="search-form">
-         <input type="text" name="search_course" placeholder="search courses..." required maxlength="100">
-         <button type="submit" class="fas fa-search" name="search_course_btn"></button>
-      </form>
+      <!-- Live Search Wrapper (Part 9 – AJAX) -->
+      <div class="live-search-wrapper search-form" style="padding:0; background:none;">
+         <form action="search_course.php" method="post" class="search-form" style="width:100%; position:relative;">
+            <input type="text" id="live-search-input" name="search_course"
+                   placeholder="Search courses & lessons..." autocomplete="off" maxlength="100"
+                   style="width:100%; background:var(--light-bg); border-radius:.5rem; padding:1.5rem 5rem 1.5rem 2rem; font-size:2rem; color:var(--black);">
+            <button type="submit" class="fas fa-search" name="search_course_btn"
+                    style="position:absolute; right:1.5rem; top:50%; transform:translateY(-50%); font-size:2rem; color:var(--black); background:none; cursor:pointer;"></button>
+         </form>
+         <div id="live-search-dropdown"></div>
+      </div>
 
       <div class="icons">
          <div id="menu-btn" class="fas fa-bars"></div>
