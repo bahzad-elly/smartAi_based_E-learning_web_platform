@@ -38,6 +38,7 @@ $issued_date = $cert ? date('F j, Y', strtotime($cert['issued_at'])) : '';
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Verify Certificate | Smart AI E-Learning</title>
    <meta name="description" content="Verify the authenticity of a Smart AI E-Learning certificate.">
+   <meta name="csrf_token" content="<?= csrf_token_generate() ?>">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
    <style>
@@ -211,106 +212,74 @@ $issued_date = $cert ? date('F j, Y', strtotime($cert['issued_at'])) : '';
 
    <h1 class="heading"><i class="fas fa-shield-alt" style="color:var(--main-color);"></i> Certificate Verification</h1>
 
-   <!-- Search Form -->
+   <!-- AJAX Search Form -->
    <div class="verify-form">
       <h3><i class="fas fa-search" style="color:var(--main-color);"></i> Enter Certificate Code</h3>
-      <form action="" method="GET">
+      <form id="ajax-verify-form">
          <div class="verify-input-group">
-            <input type="text" name="code" id="cert-code-input"
+            <input type="text" id="cert-code-input" name="code"
                    placeholder="e.g. CERT-A1B2C3D4E5"
                    value="<?= htmlspecialchars($cert_code) ?>"
-                   maxlength="30"
-                   autocomplete="off"
+                   maxlength="30" autocomplete="off"
                    style="text-transform:uppercase; letter-spacing:.05em;">
             <button type="submit"><i class="fas fa-search"></i> Verify Now</button>
          </div>
       </form>
    </div>
 
-   <!-- Result -->
+   <!-- AJAX Result Container -->
+   <div id="verify-result">
    <?php if ($cert_code): ?>
       <?php if ($verified): ?>
-      <!-- ✓ VALID -->
-      <div class="verify-hero valid">
+      <!-- Pre-loaded valid result (from URL param) -->
+      <div class="verify-hero valid animate-in">
          <div class="big-icon">✅</div>
          <h2>Certificate is Valid!</h2>
          <p>This certificate has been verified as authentic and issued by Smart AI E-Learning Platform.</p>
       </div>
-
-      <div class="valid-badge">
-         <i class="fas fa-check-circle"></i>
-         Verified Authentic Certificate
-      </div>
-
+      <div class="valid-badge"><i class="fas fa-check-circle"></i> Verified Authentic Certificate</div>
       <div class="cert-details">
          <h3><i class="fas fa-certificate" style="color:#f39c12;"></i> Certificate Details</h3>
-
          <div class="detail-row">
             <div class="icon"><i class="fas fa-user-graduate"></i></div>
-            <div class="info">
-               <label>Student Name</label>
-               <span><?= htmlspecialchars($cert['student_name']) ?></span>
-            </div>
+            <div class="info"><label>Student Name</label><span><?= htmlspecialchars($cert['student_name']) ?></span></div>
          </div>
-
          <div class="detail-row">
             <div class="icon"><i class="fas fa-brain"></i></div>
-            <div class="info">
-               <label>Quiz / Assessment</label>
-               <span><?= htmlspecialchars($cert['quiz_title']) ?></span>
-            </div>
+            <div class="info"><label>Quiz / Assessment</label><span><?= htmlspecialchars($cert['quiz_title']) ?></span></div>
          </div>
-
          <div class="detail-row">
             <div class="icon"><i class="fas fa-graduation-cap"></i></div>
-            <div class="info">
-               <label>Course</label>
-               <span><?= htmlspecialchars($cert['course_title'] ?? 'General Studies') ?></span>
-            </div>
+            <div class="info"><label>Course</label><span><?= htmlspecialchars($cert['course_title'] ?? 'General Studies') ?></span></div>
          </div>
-
          <div class="detail-row">
             <div class="icon"><i class="fas fa-calendar-check"></i></div>
-            <div class="info">
-               <label>Date of Issue</label>
-               <span><?= $issued_date ?></span>
-            </div>
+            <div class="info"><label>Date of Issue</label><span><?= $issued_date ?></span></div>
          </div>
-
          <div class="detail-row">
             <div class="icon"><i class="fas fa-fingerprint"></i></div>
-            <div class="info">
-               <label>Certificate ID</label>
-               <span style="font-family:monospace; letter-spacing:.05em;"><?= htmlspecialchars($cert['certificate_code']) ?></span>
-            </div>
+            <div class="info"><label>Certificate ID</label><span style="font-family:monospace;"><?= htmlspecialchars($cert['certificate_code']) ?></span></div>
          </div>
-
          <div class="detail-row">
             <div class="icon"><i class="fas fa-hashtag"></i></div>
-            <div class="info">
-               <label>Verification Hash</label>
-               <span style="font-family:monospace; font-size:1.3rem; color:var(--light-color);"><?= substr($cert['qr_hash'], 0, 32) ?>...</span>
-            </div>
+            <div class="info"><label>Verification Hash</label><span style="font-family:monospace; font-size:1.3rem; color:var(--light-color);"><?= substr($cert['qr_hash'], 0, 32) ?>...</span></div>
          </div>
       </div>
-
       <?php else: ?>
-      <!-- ✗ INVALID -->
-      <div class="verify-hero invalid">
+      <div class="verify-hero invalid animate-in">
          <div class="big-icon">❌</div>
          <h2>Certificate Not Found</h2>
-         <p>The code "<strong><?= htmlspecialchars($cert_code) ?></strong>" does not match any certificate in our system. Please check the code and try again.</p>
+         <p>The code "<strong><?= htmlspecialchars($cert_code) ?></strong>" does not match any certificate in our system.</p>
       </div>
       <?php endif; ?>
-
    <?php else: ?>
-   <!-- No code entered -->
    <div class="verify-hero neutral">
       <div class="big-icon">🔍</div>
       <h2>Verify a Certificate</h2>
-      <p>Enter a certificate ID above to verify its authenticity.</p>
+      <p>Enter a certificate ID above to verify its authenticity instantly.</p>
    </div>
    <?php endif; ?>
+   </div>
 
    <!-- Security Note -->
    <div class="security-note">
@@ -344,11 +313,6 @@ $issued_date = $cert ? date('F j, Y', strtotime($cert['issued_at'])) : '';
 
 <?php include 'components/footer.php'; ?>
 <script src="js/script.js"></script>
-<script>
-// Auto-uppercase certificate code input
-document.getElementById('cert-code-input').addEventListener('input', function() {
-   this.value = this.value.toUpperCase();
-});
-</script>
+<script src="js/ajax.js"></script>
 </body>
 </html>

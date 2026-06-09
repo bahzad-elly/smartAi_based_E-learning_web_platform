@@ -48,6 +48,8 @@ $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' . urlenco
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Certificate | <?= htmlspecialchars($cert['student_name']) ?></title>
+   <meta name="description" content="Download and share your Smart AI E-Learning certificate.">
+   <meta name="csrf_token" content="<?= csrf_token_generate() ?>">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
    <link rel="stylesheet" href="css/style.css">
    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
@@ -291,6 +293,9 @@ $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' . urlenco
 
 <section class="cert-page">
 
+   <!-- Confetti Canvas -->
+   <canvas id="cert-confetti"></canvas>
+
    <h1 class="heading"><i class="fas fa-certificate" style="color:#f39c12;"></i> Your Certificate</h1>
 
    <!-- Certificate ID Card -->
@@ -298,9 +303,28 @@ $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' . urlenco
       <div class="id-icon"><i class="fas fa-fingerprint"></i></div>
       <div class="id-info">
          <h4>Certificate ID</h4>
-         <code><?= htmlspecialchars($cert['certificate_code']) ?></code>
+         <code id="cert-code-display"><?= htmlspecialchars($cert['certificate_code']) ?></code>
+         <button class="copy-id-btn" onclick="copyCertId()" title="Copy Certificate ID">
+            <i class="fas fa-copy"></i> Copy
+         </button>
          <small>Issued: <?= $issued_date ?> &nbsp;|&nbsp; Use this code to verify your certificate</small>
       </div>
+   </div>
+
+   <!-- Share Buttons -->
+   <div class="share-buttons">
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= urlencode($verify_url) ?>" target="_blank" class="share-btn share-linkedin">
+         <i class="fab fa-linkedin"></i> Share on LinkedIn
+      </a>
+      <a href="https://twitter.com/intent/tweet?text=I+just+earned+a+certificate+in+<?= urlencode($cert['quiz_title']) ?>+from+Smart+AI+E-Learning!+Verify+it+here:&url=<?= urlencode($verify_url) ?>" target="_blank" class="share-btn share-twitter">
+         <i class="fab fa-twitter"></i> Share on Twitter
+      </a>
+      <a href="https://wa.me/?text=I+earned+a+certificate+from+Smart+AI+E-Learning!+Verify+at:+<?= urlencode($verify_url) ?>" target="_blank" class="share-btn share-whatsapp">
+         <i class="fab fa-whatsapp"></i> WhatsApp
+      </a>
+      <button class="share-btn share-copy" onclick="copyVerifyLink()">
+         <i class="fas fa-link"></i> Copy Verify Link
+      </button>
    </div>
 
    <!-- Action Buttons -->
@@ -382,5 +406,64 @@ $qr_url = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' . urlenco
 
 <?php include 'components/footer.php'; ?>
 <script src="js/script.js"></script>
+<script src="js/ajax.js"></script>
+<script>
+/* ── Copy helpers ── */
+function copyCertId() {
+   const code = document.getElementById('cert-code-display').textContent.trim();
+   navigator.clipboard.writeText(code).then(() => {
+      showToast('Certificate ID copied to clipboard!', 'success', 2500);
+   }).catch(() => {
+      showToast('Copy failed. Please copy manually.', 'error');
+   });
+}
+function copyVerifyLink() {
+   navigator.clipboard.writeText('<?= addslashes($verify_url) ?>').then(() => {
+      showToast('Verification link copied!', 'success', 2500);
+   }).catch(() => {
+      showToast('Copy failed. Please copy manually.', 'error');
+   });
+}
+
+/* ── Simple Confetti ── */
+(function() {
+   const canvas = document.getElementById('cert-confetti');
+   const ctx    = canvas.getContext('2d');
+   canvas.width  = window.innerWidth;
+   canvas.height = window.innerHeight;
+
+   const colors = ['#8e44ad','#f39c12','#27ae60','#3498db','#e74c3c','#f1c40f'];
+   const pieces = Array.from({length: 120}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: Math.random() * 12 + 5,
+      h: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 2,
+      vy: Math.random() * 3 + 2,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.2
+   }));
+
+   let frame = 0;
+   function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pieces.forEach(p => {
+         ctx.save();
+         ctx.translate(p.x, p.y);
+         ctx.rotate(p.angle);
+         ctx.fillStyle = p.color;
+         ctx.globalAlpha = 0.85;
+         ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+         ctx.restore();
+         p.x += p.vx; p.y += p.vy; p.angle += p.spin;
+      });
+      frame++;
+      if (frame < 200) requestAnimationFrame(draw);
+      else { ctx.clearRect(0,0,canvas.width,canvas.height); }
+   }
+   draw();
+})();
+</script>
 </body>
 </html>

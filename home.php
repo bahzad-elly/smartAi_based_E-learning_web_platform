@@ -28,7 +28,9 @@ $total_bookmarked = $select_bookmark->rowCount();
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>home</title>
+   <title>Home | Smart AI E-Learning</title>
+   <meta name="description" content="Learn from expert tutors with AI-powered personalized learning.">
+   <meta name="csrf_token" content="<?= csrf_token_generate() ?>">
 
    <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
@@ -178,6 +180,7 @@ $total_bookmarked = $select_bookmark->rowCount();
 
 <!-- custom js file link  -->
 <script src="js/script.js"></script>
+<script src="js/ajax.js"></script>
    
 </body>
-</html>
+</html>

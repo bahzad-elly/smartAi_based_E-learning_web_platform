@@ -49,7 +49,9 @@ if(isset($_POST['save_list'])){
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>playlist</title>
+   <title>Playlist | Smart AI E-Learning</title>
+   <meta name="description" content="View course playlist and videos.">
+   <meta name="csrf_token" content="<?= csrf_token_generate() ?>">
 
    <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
@@ -92,20 +94,18 @@ if(isset($_POST['save_list'])){
       ?>
 
       <div class="col">
-         <form action="" method="post" class="save-list">
-            <input type="hidden" name="list_id" value="<?= $playlist_id; ?>">
-            <?php
-               if($select_bookmark->rowCount() > 0){
-            ?>
-            <button type="submit" name="save_list"><i class="fas fa-bookmark"></i><span>saved</span></button>
-            <?php
-               }else{
-            ?>
-               <button type="submit" name="save_list"><i class="far fa-bookmark"></i><span>save playlist</span></button>
-            <?php
-               }
-            ?>
-         </form>
+         <!-- AJAX Bookmark Button (Part 9) -->
+         <?php
+            $is_bookmarked = ($select_bookmark->rowCount() > 0);
+         ?>
+         <div class="save-list">
+            <button class="ajax-bookmark-btn <?= $is_bookmarked ? 'bookmarked' : '' ?>"
+                    data-playlist-id="<?= $playlist_id; ?>"
+                    title="<?= $is_bookmarked ? 'Remove Bookmark' : 'Save Playlist' ?>">
+               <i class="<?= $is_bookmarked ? 'fas' : 'far' ?> fa-bookmark"></i>
+               <span><?= $is_bookmarked ? 'Saved' : 'Save Playlist' ?></span>
+            </button>
+         </div>
          <div class="thumb">
             <span><?= $total_videos; ?> videos</span>
             <img src="uploaded_files/<?= $fetch_playlist['thumb']; ?>" alt="">
@@ -185,6 +185,7 @@ if(isset($_POST['save_list'])){
 
 <!-- custom js file link  -->
 <script src="js/script.js"></script>
+<script src="js/ajax.js"></script>
    
 </body>
-</html>
+</html>
