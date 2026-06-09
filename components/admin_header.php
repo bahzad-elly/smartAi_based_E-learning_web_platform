@@ -102,6 +102,7 @@ if(isset($message)){
       <a href="contents.php"><i class="fas fa-graduation-cap"></i><span>contents</span></a>
       <a href="quizzes.php"><i class="fas fa-brain"></i><span>quizzes</span></a>
       <a href="comments.php"><i class="fas fa-comment"></i><span>comments</span></a>
+      <a href="chat.php"><i class="fas fa-comments"></i><span>chat room</span></a>
       <a href="../components/admin_logout.php" onclick="return confirm('logout from this website?');"><i class="fas fa-right-from-bracket"></i><span>logout</span></a>
    </nav>
 

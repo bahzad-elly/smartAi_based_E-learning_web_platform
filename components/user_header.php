@@ -110,6 +110,7 @@ if(isset($message)){
       <a href="about.php"><i class="fas fa-question"></i><span>about us</span></a>
       <a href="courses.php"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.php"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="chat.php"><i class="fas fa-comments"></i><span>chat room</span></a>
       <a href="quiz.php"><i class="fas fa-brain"></i><span>quizzes &amp; exams</span></a>
       <a href="exam_history.php"><i class="fas fa-history"></i><span>my results</span></a>
       <a href="verify_certificate.php"><i class="fas fa-certificate"></i><span>verify certificate</span></a>
