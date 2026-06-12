@@ -26,7 +26,19 @@ if(isset($message)){
          <div id="menu-btn" class="fas fa-bars"></div>
          <div id="search-btn" class="fas fa-search"></div>
          <div id="user-btn" class="fas fa-user"></div>
+         <div id="notif-bell-btn" class="fas fa-bell"><span id="notif-badge">0</span></div>
          <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <!-- Notification Dropdown Container -->
+      <div class="notif-dropdown-wrapper" id="notif-dropdown">
+         <div class="notif-dropdown-header">
+            <h3>Notifications</h3>
+            <button class="notif-mark-all-btn" id="notif-mark-all">Mark all as read</button>
+         </div>
+         <div class="notif-list" id="notif-list-container">
+            <!-- Dynamic alerts map here -->
+         </div>
       </div>
 
       <div class="profile">
