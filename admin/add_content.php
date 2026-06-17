@@ -39,10 +39,22 @@ if(isset($_POST['submit'])){
    if($thumb_size > 2000000){
       $message[] = 'image size is too large!';
    }else{
-      $add_playlist = $conn->prepare("INSERT INTO `content`(id, tutor_id, playlist_id, title, description, video, thumb, status) VALUES(?,?,?,?,?,?,?,?)");
+      $add_playlist = $conn->prepare("INSERT INTO `lessons`(id, tutor_id, playlist_id, title, description, video, thumb, status) VALUES(?,?,?,?,?,?,?,?)");
       $add_playlist->execute([$id, $tutor_id, $playlist, $title, $description, $rename_video, $rename_thumb, $status]);
       move_uploaded_file($thumb_tmp_name, $thumb_folder);
       move_uploaded_file($video_tmp_name, $video_folder);
+
+      // Create a global notification for students about the new content upload
+      try {
+         $notif_id = unique_id();
+         $notif_title = 'New Lesson Uploaded';
+         $notif_message = 'A new lesson "' . $title . '" has been published by your instructor.';
+         $ins_notif = $conn->prepare("INSERT INTO `notifications` (id, user_id, tutor_id, title, message, status) VALUES (?, NULL, NULL, ?, ?, 'unread')");
+         $ins_notif->execute([$notif_id, $notif_title, $notif_message]);
+      } catch (Exception $ex) {
+         // Ignore notification failures to avoid blocking the main content upload
+      }
+
       $message[] = 'new course uploaded!';
    }
 

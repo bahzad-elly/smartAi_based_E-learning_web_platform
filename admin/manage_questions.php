@@ -5,7 +5,7 @@
 
 include '../components/connect.php';
 
-if (!isset($_SESSION['admin_id'])) {
+if (empty($tutor_id)) {
     header('location: login.php');
     exit;
 }
@@ -14,7 +14,7 @@ $quiz_id = isset($_GET['quiz_id']) ? sanitize_input($_GET['quiz_id']) : '';
 if (!$quiz_id) { header('location: quizzes.php'); exit; }
 
 // Fetch quiz info
-$q_stmt = $conn->prepare("SELECT q.*, p.title AS playlist_title FROM `quizzes` q LEFT JOIN `playlist` p ON q.playlist_id = p.id WHERE q.id = ? LIMIT 1");
+$q_stmt = $conn->prepare("SELECT q.*, p.title AS playlist_title FROM `quizzes` q LEFT JOIN `playlists` p ON q.playlist_id = p.id WHERE q.id = ? LIMIT 1");
 $q_stmt->execute([$quiz_id]);
 $quiz = $q_stmt->fetch();
 if (!$quiz) { header('location: quizzes.php'); exit; }
@@ -59,7 +59,7 @@ if (isset($_POST['delete_question'])) {
 }
 
 // ── FETCH ALL QUESTIONS ───────────────────────────
-$questions = $conn->prepare("SELECT * FROM `questions` WHERE quiz_id = ? ORDER BY rowid ASC");
+$questions = $conn->prepare("SELECT * FROM `questions` WHERE quiz_id = ? ORDER BY id ASC");
 $questions->execute([$quiz_id]);
 $all_questions = $questions->fetchAll();
 ?>

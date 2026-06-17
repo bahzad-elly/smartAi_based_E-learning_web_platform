@@ -1484,6 +1484,20 @@ section{
    color: var(--main-color);
 }
 
+.footer-links {
+   display: flex;
+   gap: 2rem;
+   justify-content: center;
+   margin-top: .8rem;
+   flex-wrap: wrap;
+}
+.footer-links a {
+   font-size: 1.3rem;
+   color: var(--light-color);
+   transition: color .2s;
+}
+.footer-links a:hover { color: var(--main-color); }
+
 /* media queries  */
 
 @media (max-width:1200px){
@@ -2438,4 +2452,474 @@ input.field-invalid, textarea.field-invalid {
    color: var(--light-color);
 }
 
+
+/* ── Part 12 AI Chatbot System Styles ───────────────────────── */
+.chatbot-toggle-btn {
+   position: fixed;
+   bottom: 2.5rem;
+   right: 2.5rem;
+   width: 6rem;
+   height: 6rem;
+   border-radius: 50%;
+   background: linear-gradient(135deg, var(--main-color), #8e44ad);
+   color: #fff;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 2.5rem;
+   cursor: pointer;
+   box-shadow: 0 .8rem 2.5rem rgba(142,68,173,.35);
+   z-index: 9999;
+   transition: all .3s cubic-bezier(.34,1.56,.64,1);
+}
+.chatbot-toggle-btn:hover {
+   transform: scale(1.1) rotate(5deg);
+   box-shadow: 0 1rem 3rem rgba(142,68,173,.45);
+}
+.chatbot-toggle-btn i {
+   transition: transform .3s;
+}
+.chatbot-toggle-btn.active i {
+   transform: rotate(90deg);
+}
+
+.chatbot-container {
+   position: fixed;
+   bottom: 9.5rem;
+   right: 2.5rem;
+   width: 38rem;
+   height: 50rem;
+   border-radius: 1.2rem;
+   background: rgba(255, 255, 255, 0.85);
+   backdrop-filter: blur(1.5rem);
+   -webkit-backdrop-filter: blur(1.5rem);
+   border: 1px solid rgba(255, 255, 255, 0.35);
+   box-shadow: 0 1rem 4rem rgba(0,0,0,.15);
+   z-index: 9998;
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+   opacity: 0;
+   transform: translateY(2rem) scale(0.95);
+   pointer-events: none;
+   transition: all .3s cubic-bezier(.34,1.56,.64,1);
+}
+.dark .chatbot-container {
+   background: rgba(44, 62, 80, 0.95);
+   border-color: rgba(255, 255, 255, 0.08);
+   box-shadow: 0 1rem 4rem rgba(0,0,0,.3);
+}
+.chatbot-container.active {
+   opacity: 1;
+   transform: translateY(0) scale(1);
+   pointer-events: all;
+}
+
+.chatbot-header {
+   padding: 1.6rem 2rem;
+   background: linear-gradient(135deg, var(--main-color), #8e44ad);
+   color: #fff;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+.chatbot-header-info {
+   display: flex;
+   align-items: center;
+   gap: 1.2rem;
+}
+.chatbot-header-info img {
+   width: 3.5rem;
+   height: 3.5rem;
+   border-radius: 50%;
+   background: #fff;
+   padding: .2rem;
+}
+.chatbot-header-info h4 {
+   font-size: 1.6rem;
+   font-weight: 600;
+}
+.chatbot-header-info span {
+   font-size: 1.1rem;
+   opacity: .8;
+   display: block;
+}
+.chatbot-close-btn {
+   background: none;
+   border: none;
+   color: #fff;
+   font-size: 1.8rem;
+   cursor: pointer;
+   opacity: .8;
+   transition: opacity .2s;
+}
+.chatbot-close-btn:hover { opacity: 1; }
+
+.chatbot-messages-area {
+   flex: 1;
+   padding: 1.6rem 2rem;
+   overflow-y: auto;
+   display: flex;
+   flex-direction: column;
+   gap: 1.4rem;
+   background: rgba(245,246,250,.4);
+}
+.dark .chatbot-messages-area {
+   background: rgba(0,0,0,.15);
+}
+
+.chatbot-bubble {
+   max-width: 80%;
+   padding: 1.1rem 1.4rem;
+   border-radius: 1rem;
+   font-size: 1.4rem;
+   line-height: 1.5;
+   box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.chatbot-bubble.user {
+   background: var(--main-color);
+   color: #fff;
+   align-self: flex-end;
+   border-bottom-right-radius: 0;
+}
+.chatbot-bubble.bot {
+   background: var(--white);
+   color: var(--black);
+   align-self: flex-start;
+   border-bottom-left-radius: 0;
+   border: 1px solid rgba(0,0,0,.03);
+}
+.dark .chatbot-bubble.bot {
+   background: var(--light-bg);
+   border-color: rgba(255,255,255,.03);
+}
+
+.chatbot-suggestions {
+   padding: 1rem 2rem;
+   display: flex;
+   flex-wrap: wrap;
+   gap: .8rem;
+   background: rgba(255,255,255,.2);
+   border-top: 1px solid rgba(0,0,0,.03);
+}
+.dark .chatbot-suggestions {
+   background: rgba(0,0,0,.1);
+   border-color: rgba(255,255,255,.03);
+}
+.chatbot-suggestion-pill {
+   background: var(--white);
+   color: var(--main-color);
+   border: 1px solid var(--main-color);
+   padding: .6rem 1.2rem;
+   border-radius: 2rem;
+   font-size: 1.2rem;
+   cursor: pointer;
+   transition: all .2s;
+   font-weight: 600;
+}
+.chatbot-suggestion-pill:hover {
+   background: var(--main-color);
+   color: #fff;
+}
+.dark .chatbot-suggestion-pill {
+   background: var(--black);
+   border-color: var(--main-color);
+}
+
+.chatbot-input-form {
+   padding: 1.2rem 2rem;
+   background: var(--white);
+   border-top: 1px solid rgba(0,0,0,.05);
+   display: flex;
+   align-items: center;
+   gap: 1.2rem;
+}
+.dark .chatbot-input-form {
+   background: var(--black);
+   border-color: rgba(255,255,255,.05);
+}
+.chatbot-input-form input {
+   flex: 1;
+   background: var(--light-bg);
+   border: 1px solid rgba(0,0,0,.08);
+   padding: 1rem 1.6rem;
+   border-radius: 2rem;
+   font-size: 1.4rem;
+   color: var(--black);
+}
+.dark .chatbot-input-form input {
+   border-color: rgba(255,255,255,.08);
+}
+.chatbot-send-btn-widget {
+   background: var(--main-color);
+   color: #fff;
+   width: 3.8rem;
+   height: 3.8rem;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 1.5rem;
+   cursor: pointer;
+   transition: background .2s;
+   border: none;
+}
+.chatbot-send-btn-widget:hover {
+   background: #8e44ad;
+}
+
+@media(max-width: 480px) {
+   .chatbot-container {
+      width: calc(100% - 4rem);
+      height: 45rem;
+      right: 2rem;
+      bottom: 8.5rem;
+   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Part 16 — Modern UI/UX Enhancements
+   Glassmorphism · Scroll Animations · Page Loader · Skeleton Cards
+   Part 19 — Responsive Optimization
+   Lazy load placeholders · Mobile improvements
+   Part 20 — Accessibility & Performance
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Page Loading Screen ─────────────────────────────────────────── */
+#page-loader {
+   position: fixed;
+   inset: 0;
+   z-index: 99999;
+   background: var(--white);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+   gap: 1.5rem;
+   transition: opacity .4s ease, visibility .4s ease;
+}
+#page-loader.hidden {
+   opacity: 0;
+   visibility: hidden;
+   pointer-events: none;
+}
+.loader-ring {
+   width: 5rem;
+   height: 5rem;
+   border: .4rem solid var(--light-bg);
+   border-top-color: var(--main-color);
+   border-radius: 50%;
+   animation: spin-loader .8s linear infinite;
+}
+@keyframes spin-loader { to { transform: rotate(360deg); } }
+.loader-text {
+   font-size: 1.6rem;
+   color: var(--light-color);
+   font-weight: 500;
+}
+
+/* ── Scroll Reveal Animation ─────────────────────────────────────── */
+.reveal-card {
+   opacity: 0;
+   transform: translateY(3rem);
+   transition: opacity .55s ease, transform .55s ease;
+}
+.reveal-card.visible {
+   opacity: 1;
+   transform: translateY(0);
+}
+
+/* ── Glassmorphism Cards (for .box) ──────────────────────────────── */
+.glass {
+   background: rgba(255, 255, 255, 0.6) !important;
+   backdrop-filter: blur(12px) !important;
+   -webkit-backdrop-filter: blur(12px) !important;
+   border: 1px solid rgba(255, 255, 255, 0.3) !important;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+.dark .glass {
+   background: rgba(30, 30, 40, 0.6) !important;
+   border-color: rgba(255, 255, 255, 0.08) !important;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── Skeleton Loading Cards (Part 13 / Part 19) ──────────────────── */
+.skeleton-card {
+   pointer-events: none;
+   overflow: hidden;
+}
+.skeleton {
+   background: linear-gradient(90deg, var(--light-bg) 25%, rgba(255,255,255,.5) 50%, var(--light-bg) 75%);
+   background-size: 200% 100%;
+   animation: shimmer 1.4s infinite;
+   border-radius: .6rem;
+}
+.dark .skeleton {
+   background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+   background-size: 200% 100%;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+.skeleton-avatar  { width: 4rem; height: 4rem; border-radius: 50%; margin-bottom: 1rem; }
+.skeleton-thumb   { width: 100%; height: 17rem; margin-bottom: 1rem; }
+.skeleton-line    { width: 70%; height: 1.6rem; margin-bottom: 1rem; }
+.skeleton-btn     { width: 40%; height: 3.2rem; }
+
+/* ── Enrollment Badge (Part 13) ──────────────────────────────────── */
+.enroll-badge {
+   font-size: 1.2rem;
+   color: var(--light-color);
+   display: flex;
+   align-items: center;
+   gap: .4rem;
+}
+
+/* ── Button Hover Lift Effect ─────────────────────────────────────── */
+.btn, .inline-btn, .option-btn {
+   transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+}
+.btn:hover, .inline-btn:hover, .option-btn:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+}
+
+/* ── Smooth Image Fade-in (Part 19 lazy loading) ─────────────────── */
+img[loading="lazy"] {
+   transition: opacity .4s ease;
+}
+img[loading="lazy"]:not([src]), img.loading {
+   opacity: 0;
+}
+img[loading="lazy"][src] {
+   opacity: 1;
+}
+
+/* ── Notification Dropdown (Part 11) tweaks ──────────────────────── */
+.notif-dropdown-wrapper {
+   position: absolute;
+   top: 100%;
+   right: 0;
+   width: 32rem;
+   max-height: 40rem;
+   overflow-y: auto;
+   background: var(--white);
+   border: var(--border);
+   border-radius: 1rem;
+   box-shadow: 0 8px 24px rgba(0,0,0,.12);
+   z-index: 1000;
+   display: none;
+   animation: fadeDown .25s ease;
+}
+.notif-dropdown-wrapper.active { display: block; }
+@keyframes fadeDown {
+   from { opacity: 0; transform: translateY(-1rem); }
+   to   { opacity: 1; transform: translateY(0); }
+}
+.notif-dropdown-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 1.2rem 1.6rem;
+   border-bottom: var(--border);
+   font-size: 1.5rem;
+   font-weight: 600;
+}
+.notif-mark-all-btn {
+   font-size: 1.2rem;
+   color: var(--main-color);
+   background: none;
+   cursor: pointer;
+   border: none;
+}
+.notif-list { padding: .5rem 0; }
+.notif-item {
+   padding: 1.2rem 1.6rem;
+   border-bottom: 1px solid rgba(0,0,0,.04);
+   cursor: pointer;
+   transition: background .2s;
+}
+.notif-item:hover { background: var(--light-bg); }
+.notif-item.unread { border-left: 3px solid var(--main-color); }
+.notif-item h4 { font-size: 1.4rem; margin-bottom: .3rem; }
+.notif-item p  { font-size: 1.2rem; color: var(--light-color); }
+
+/* ── Live Search Dropdown (Part 18) ──────────────────────────────── */
+#live-search-dropdown {
+   position: absolute;
+   top: 100%;
+   left: 0;
+   right: 0;
+   background: var(--white);
+   border: var(--border);
+   border-radius: .8rem;
+   box-shadow: 0 8px 24px rgba(0,0,0,.1);
+   z-index: 999;
+   max-height: 36rem;
+   overflow-y: auto;
+   display: none;
+}
+#live-search-dropdown.active { display: block; animation: fadeDown .2s ease; }
+.search-result-item {
+   display: flex;
+   align-items: center;
+   gap: 1.2rem;
+   padding: 1.2rem 1.6rem;
+   border-bottom: 1px solid rgba(0,0,0,.04);
+   transition: background .2s;
+   cursor: pointer;
+   text-decoration: none;
+   color: var(--black);
+}
+.search-result-item:hover { background: var(--light-bg); }
+.search-result-item img { width: 5rem; height: 3.5rem; object-fit: cover; border-radius: .4rem; }
+.search-result-item .info h4 { font-size: 1.4rem; }
+.search-result-item .info span { font-size: 1.2rem; color: var(--light-color); }
+
+/* ── Language Switcher (Part 17) ─────────────────────────────────── */
+.lang-switcher {
+   display: flex;
+   align-items: center;
+   gap: .6rem;
+   font-size: 1.3rem;
+}
+.lang-switcher a {
+   padding: .4rem .9rem;
+   border-radius: 2rem;
+   color: var(--black);
+   transition: background .2s, color .2s;
+}
+.lang-switcher a:hover,
+.lang-switcher a.active {
+   background: var(--main-color);
+   color: #fff;
+}
+
+/* ── Focus Outline (Accessibility / Part 20) ─────────────────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+   outline: 2px solid var(--main-color);
+   outline-offset: 3px;
+}
+
+/* ── Section fade-in on page load ────────────────────────────────── */
+.fade-in-section {
+   animation: fadeInUp .5s ease both;
+}
+@keyframes fadeInUp {
+   from { opacity: 0; transform: translateY(2rem); }
+   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive improvements (Part 19) ──────────────────────────── */
+@media (max-width: 768px) {
+   .live-search-wrapper { width: 100%; }
+   .notif-dropdown-wrapper { width: 100%; right: 0; left: 0; }
+   #page-loader .loader-ring { width: 4rem; height: 4rem; }
+   .recommended-section .box { animation-delay: 0s !important; }
+}
+
+@media (max-width: 450px) {
+   .enroll-badge { display: none; }
+}
 

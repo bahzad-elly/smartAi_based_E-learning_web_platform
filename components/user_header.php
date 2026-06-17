@@ -31,12 +31,25 @@ if(isset($message)){
          <div id="live-search-dropdown"></div>
       </div>
 
+      <!-- Part 17 — Language Switcher -->
+      <div class="lang-switcher" aria-label="Language selector">
+         <?php
+            $cur_lang = $_COOKIE['lang'] ?? $_SESSION['lang'] ?? 'en';
+            $cur_page = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '');
+         ?>
+         <a href="?lang=en" class="<?= $cur_lang === 'en' ? 'active' : ''; ?>" aria-label="English" title="English">EN</a>
+         <a href="?lang=ku" class="<?= $cur_lang === 'ku' ? 'active' : ''; ?>" aria-label="Kurdish" title="Kurdish">KU</a>
+         <a href="?lang=ar" class="<?= $cur_lang === 'ar' ? 'active' : ''; ?>" aria-label="Arabic"  title="Arabic">AR</a>
+      </div>
+
       <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="notif-bell-btn" class="fas fa-bell"><span id="notif-badge">0</span></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
+         <div id="menu-btn" class="fas fa-bars" role="button" aria-label="Toggle sidebar menu" tabindex="0"></div>
+         <div id="search-btn" class="fas fa-search" role="button" aria-label="Toggle search" tabindex="0"></div>
+         <div id="user-btn" class="fas fa-user" role="button" aria-label="User profile" tabindex="0"></div>
+         <div id="notif-bell-btn" class="fas fa-bell" role="button" aria-label="Notifications" tabindex="0">
+            <span id="notif-badge" aria-live="polite" aria-label="Unread notifications count">0</span>
+         </div>
+         <div id="toggle-btn" class="fas fa-sun" role="button" aria-label="Toggle dark mode" tabindex="0"></div>
       </div>
 
       <!-- Notification Dropdown Container -->
@@ -117,16 +130,16 @@ if(isset($message)){
          ?>
       </div>
 
-   <nav class="navbar">
-      <a href="home.php"><i class="fas fa-home"></i><span>home</span></a>
-      <a href="about.php"><i class="fas fa-question"></i><span>about us</span></a>
-      <a href="courses.php"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
-      <a href="teachers.php"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
-      <a href="chat.php"><i class="fas fa-comments"></i><span>chat room</span></a>
-      <a href="quiz.php"><i class="fas fa-brain"></i><span>quizzes &amp; exams</span></a>
-      <a href="exam_history.php"><i class="fas fa-history"></i><span>my results</span></a>
-      <a href="verify_certificate.php"><i class="fas fa-certificate"></i><span>verify certificate</span></a>
-      <a href="contact.php"><i class="fas fa-headset"></i><span>contact us</span></a>
+   <nav class="navbar" aria-label="Main navigation">
+      <a href="home.php" aria-label="Home"><i class="fas fa-home" aria-hidden="true"></i><span>home</span></a>
+      <a href="about.php" aria-label="About Us"><i class="fas fa-question" aria-hidden="true"></i><span>about us</span></a>
+      <a href="courses.php" aria-label="All Courses"><i class="fas fa-graduation-cap" aria-hidden="true"></i><span>courses</span></a>
+      <a href="teachers.php" aria-label="Browse Teachers"><i class="fas fa-chalkboard-user" aria-hidden="true"></i><span>teachers</span></a>
+      <a href="chat.php" aria-label="Chat Room"><i class="fas fa-comments" aria-hidden="true"></i><span>chat room</span></a>
+      <a href="quiz.php" aria-label="Quizzes and Exams"><i class="fas fa-brain" aria-hidden="true"></i><span>quizzes &amp; exams</span></a>
+      <a href="exam_history.php" aria-label="My Results"><i class="fas fa-history" aria-hidden="true"></i><span>my results</span></a>
+      <a href="verify_certificate.php" aria-label="Verify Certificate"><i class="fas fa-certificate" aria-hidden="true"></i><span>verify certificate</span></a>
+      <a href="contact.php" aria-label="Contact Us"><i class="fas fa-headset" aria-hidden="true"></i><span>contact us</span></a>
    </nav>
 
 </div>

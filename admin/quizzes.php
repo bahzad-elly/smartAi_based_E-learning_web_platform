@@ -5,12 +5,11 @@
 
 include '../components/connect.php';
 
-// Admin must be logged in
-if (!isset($_SESSION['admin_id'])) {
+// Tutor must be logged in
+if (empty($tutor_id)) {
     header('location: login.php');
     exit;
 }
-$admin_id = $_SESSION['admin_id'];
 
 // Delete a quiz
 if (isset($_POST['delete_quiz'])) {
@@ -50,7 +49,7 @@ if (isset($_POST['delete_quiz'])) {
       $select_quizzes = $conn->prepare("
          SELECT q.*, p.title AS playlist_title
          FROM `quizzes` q
-         LEFT JOIN `playlist` p ON q.playlist_id = p.id
+         LEFT JOIN `playlists` p ON q.playlist_id = p.id
          ORDER BY q.created_at DESC
       ");
       $select_quizzes->execute();

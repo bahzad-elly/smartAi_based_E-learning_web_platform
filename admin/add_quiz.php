@@ -5,11 +5,10 @@
 
 include '../components/connect.php';
 
-if (!isset($_SESSION['admin_id'])) {
+if (empty($tutor_id)) {
     header('location: login.php');
     exit;
 }
-$admin_id = $_SESSION['admin_id'];
 
 // Check if editing
 $edit_id = isset($_GET['edit']) ? sanitize_input($_GET['edit']) : null;
@@ -35,6 +34,18 @@ if (isset($_POST['save_quiz'])) {
         $new_id = unique_id();
         $stmt = $conn->prepare("INSERT INTO `quizzes`(id, playlist_id, title, time_limit, passing_score, shuffle_questions) VALUES(?,?,?,?,?,?)");
         $stmt->execute([$new_id, $playlist_id, $title, $time_limit, $passing_score, $shuffle]);
+
+        // Create a global notification for students about the new quiz
+        try {
+            $notif_id = unique_id();
+            $notif_title = 'New Quiz Available';
+            $notif_message = 'A new quiz "' . $title . '" has been published. Good luck!';
+            $ins_notif = $conn->prepare("INSERT INTO `notifications` (id, user_id, tutor_id, title, message, status) VALUES (?, NULL, NULL, ?, ?, 'unread')");
+            $ins_notif->execute([$notif_id, $notif_title, $notif_message]);
+        } catch (Exception $ex) {
+            // Ignore notification failures
+        }
+
         $edit_id = $new_id;
         $message[] = 'Quiz created! Now add questions below.';
         header("location: manage_questions.php?quiz_id=$new_id");
@@ -43,7 +54,7 @@ if (isset($_POST['save_quiz'])) {
 }
 
 // Get all playlists for dropdown
-$playlists = $conn->prepare("SELECT * FROM `playlist` WHERE status='active' ORDER BY title ASC");
+$playlists = $conn->prepare("SELECT * FROM `playlists` WHERE status='active' ORDER BY title ASC");
 $playlists->execute();
 ?>
 <!DOCTYPE html>

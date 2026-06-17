@@ -23,6 +23,20 @@ if (empty($current_user_id) && empty($current_tutor_id)) {
 $sender_type = !empty($current_user_id) ? 'user' : 'tutor';
 $my_id = ($sender_type === 'user') ? $current_user_id : $current_tutor_id;
 
+// Self-healing check to dynamically add last_seen and typing_to columns if missing
+try {
+    $conn->query("SELECT `last_seen`, `typing_to` FROM `users` LIMIT 1");
+} catch (Exception $e) {
+    try { $conn->query("ALTER TABLE `users` ADD COLUMN `last_seen` INT UNSIGNED DEFAULT 0"); } catch (Exception $ex) {}
+    try { $conn->query("ALTER TABLE `users` ADD COLUMN `typing_to` VARCHAR(20) DEFAULT NULL"); } catch (Exception $ex) {}
+}
+try {
+    $conn->query("SELECT `last_seen`, `typing_to` FROM `instructors` LIMIT 1");
+} catch (Exception $e) {
+    try { $conn->query("ALTER TABLE `instructors` ADD COLUMN `last_seen` INT UNSIGNED DEFAULT 0"); } catch (Exception $ex) {}
+    try { $conn->query("ALTER TABLE `instructors` ADD COLUMN `typing_to` VARCHAR(20) DEFAULT NULL"); } catch (Exception $ex) {}
+}
+
 $action = isset($_REQUEST['action']) ? trim($_REQUEST['action']) : '';
 
 switch ($action) {
@@ -31,7 +45,7 @@ switch ($action) {
         try {
             if ($sender_type === 'user') {
                 // Return all instructors/tutors
-                $stmt = $conn->prepare("SELECT id, name, profession, image FROM `tutors` ORDER BY name ASC");
+                $stmt = $conn->prepare("SELECT id, name, profession, image FROM `instructors` ORDER BY name ASC");
                 $stmt->execute();
                 $contacts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
@@ -150,6 +164,32 @@ switch ($action) {
             $stmt = $conn->prepare("INSERT INTO `messages` (id, chat_id, sender_type, message, attachment) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$msg_id, $chat_id, $sender_type, $message_text, $attachment]);
 
+            // Create real-time notification for the recipient
+            try {
+                $notif_id = unique_id();
+                $notif_title = ($sender_type === 'user') ? 'New Message from Student' : 'New Message from Instructor';
+                
+                // Fetch sender name
+                $sender_table = ($sender_type === 'user') ? 'users' : 'instructors';
+                $name_stmt = $conn->prepare("SELECT name FROM `$sender_table` WHERE id = ? LIMIT 1");
+                $name_stmt->execute([$my_id]);
+                $sender_name = $name_stmt->fetchColumn();
+                
+                $msg_preview = !empty($message_text) ? $message_text : 'Sent an attachment';
+                $notif_msg = "You received a new message from " . $sender_name . ": " . (mb_strlen($msg_preview) > 50 ? mb_substr($msg_preview, 0, 47) . '...' : $msg_preview);
+
+                $notif_user_id = ($sender_type === 'tutor') ? $target_id : null;
+                $notif_tutor_id = ($sender_type === 'user') ? $target_id : null;
+
+                $notif_stmt = $conn->prepare("
+                    INSERT INTO `notifications` (id, user_id, tutor_id, title, message, status) 
+                    VALUES (?, ?, ?, ?, ?, 'unread')
+                ");
+                $notif_stmt->execute([$notif_id, $notif_user_id, $notif_tutor_id, $notif_title, $notif_msg]);
+            } catch (Exception $ex) {
+                // Ignore notification insertion errors to avoid breaking message delivery
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'message' => [
@@ -171,9 +211,15 @@ switch ($action) {
         $target_id = isset($_POST['target_id']) ? sanitize_input($_POST['target_id']) : '';
         $is_typing = isset($_POST['is_typing']) ? (int)$_POST['is_typing'] : 0;
         
-        // Save typing state in session or database logs. Since session is local, we store it in a temp session key
-        // Accessible to simulation
         if (!empty($target_id)) {
+            $table = ($sender_type === 'user') ? 'users' : 'instructors';
+            try {
+                $typing_to = ($is_typing === 1) ? $target_id : null;
+                $stmt = $conn->prepare("UPDATE `$table` SET typing_to = ? WHERE id = ?");
+                $stmt->execute([$typing_to, $my_id]);
+            } catch (Exception $e) {
+                // Fallback
+            }
             $_SESSION['typing_state_' . $my_id . '_' . $target_id] = [
                 'time' => time(),
                 'is_typing' => $is_typing
@@ -194,13 +240,24 @@ switch ($action) {
         $target_type = ($sender_type === 'user') ? 'tutor' : 'user';
         $online = is_user_online($conn, $target_id, $target_type);
 
-        // Check typing state of recipient targeting me
-        $typing_key = 'typing_state_' . $target_id . '_' . $my_id;
+        // Check typing state of recipient targeting me from database
         $typing = false;
-        if (isset($_SESSION[$typing_key])) {
-            $typing_info = $_SESSION[$typing_key];
-            if (time() - $typing_info['time'] < 4 && $typing_info['is_typing'] == 1) {
+        $target_table = ($target_type === 'user') ? 'users' : 'instructors';
+        try {
+            $stmt = $conn->prepare("SELECT typing_to FROM `$target_table` WHERE id = ? LIMIT 1");
+            $stmt->execute([$target_id]);
+            $typing_to = $stmt->fetchColumn();
+            if ($online && $typing_to === $my_id) {
                 $typing = true;
+            }
+        } catch (Exception $e) {
+            // Fallback to session check
+            $typing_key = 'typing_state_' . $target_id . '_' . $my_id;
+            if (isset($_SESSION[$typing_key])) {
+                $typing_info = $_SESSION[$typing_key];
+                if (time() - $typing_info['time'] < 5 && $typing_info['is_typing'] == 1) {
+                    $typing = true;
+                }
             }
         }
 
@@ -254,15 +311,31 @@ function get_last_message($conn, $user_id, $tutor_id) {
 }
 
 function update_heartbeat($conn, $my_id, $type) {
-    // Record active activity in session or database logs
-    $_SESSION['last_activity_' . $type . '_' . $my_id] = time();
+    $table = ($type === 'user') ? 'users' : 'instructors';
+    try {
+        $stmt = $conn->prepare("UPDATE `$table` SET last_seen = ? WHERE id = ?");
+        $stmt->execute([time(), $my_id]);
+    } catch (Exception $e) {
+        // Fallback to session
+        $_SESSION['last_activity_' . $type . '_' . $my_id] = time();
+    }
 }
 
 function is_user_online($conn, $user_id, $type) {
-    // Check local session state
+    $table = ($type === 'user') ? 'users' : 'instructors';
+    try {
+        $stmt = $conn->prepare("SELECT last_seen FROM `$table` WHERE id = ? LIMIT 1");
+        $stmt->execute([$user_id]);
+        $last_seen = $stmt->fetchColumn();
+        if ($last_seen !== false && $last_seen > 0) {
+            return (time() - $last_seen) < 15; // Active in last 15 seconds
+        }
+    } catch (Exception $e) {
+        // Fallback
+    }
     $key = 'last_activity_' . $type . '_' . $user_id;
     if (isset($_SESSION[$key])) {
-        return (time() - $_SESSION[$key]) < 15; // Active in last 15 seconds
+        return (time() - $_SESSION[$key]) < 15;
     }
     return false;
 }
